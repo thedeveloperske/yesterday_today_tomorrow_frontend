@@ -1,6 +1,9 @@
+import { useRouter } from "expo-router";
 import { Image, Text, View } from "react-native";
+import Button from "../shared/Button";
 
 export default function NoJournals() {
+  const router = useRouter();
   return (
     <View
       style={{
@@ -11,17 +14,26 @@ export default function NoJournals() {
     >
       <Image
         source={require("../../assets/images/start_writing.png")}
-        style={{ height: 200, width: 200 }}
+        style={{ marginTop: 16, height: 200, width: 200 }}
       />
       <Text
         style={{
+          marginTop: 16,
           fontFamily: "inter-bold",
           fontSize: 25,
           textAlign: "center",
         }}
       >
-        Start Writing...
+        Start Journaling...
       </Text>
+      <Button
+        text={"+ Add a Journal Entry"}
+        onPress={() => router.push("/journal")}
+      />
+      <Button
+        text={"My Journals"}
+        type="outline"
+      />
     </View>
   );
 }

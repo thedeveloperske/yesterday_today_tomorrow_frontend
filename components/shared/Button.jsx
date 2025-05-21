@@ -19,6 +19,7 @@ export default function Button({ text, type = "fill", onPress }) {
         style={{
           textAlign: "center",
           fontSize: 18,
+          fontFamily: "inter",
           color: type == "fill" ? Colors.WHITE : Colors.PRIMARY,
         }}
       >

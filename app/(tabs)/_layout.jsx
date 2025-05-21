@@ -1,19 +1,33 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
+import Colors from "../../assets/constant/Colors";
+
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{ headerShown: false }}
+      style={{
+        position: "absolute",
+        bottom: 25,
+        left: 25,
+        right: 25,
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons
-              name="home-outline"
+              name="list"
               size={size}
-              color={color}
+              color={Colors.PRIMARY}
             />
           ),
           tabBarLabel: "Home",
+          tabBarLabelStyle: {
+            fontFamily: "inter",
+            color: Colors.PRIMARY,
+          },
         }}
       />
       <Tabs.Screen
@@ -23,10 +37,14 @@ export default function TabLayout() {
             <Ionicons
               name="analytics-outline"
               size={size}
-              color={color}
+              color={Colors.PRIMARY}
             />
           ),
           tabBarLabel: "Analytics",
+          tabBarLabelStyle: {
+            fontFamily: "inter",
+            color: Colors.PRIMARY,
+          },
         }}
       />
       <Tabs.Screen
@@ -36,10 +54,31 @@ export default function TabLayout() {
             <Ionicons
               name="person-circle-outline"
               size={size}
-              color={color}
+              color={Colors.PRIMARY}
             />
           ),
           tabBarLabel: "Profile",
+          tabBarLabelStyle: {
+            fontFamily: "inter",
+            color: Colors.PRIMARY,
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="settings-outline"
+              size={size}
+              color={Colors.PRIMARY}
+            />
+          ),
+          tabBarLabel: "Settings",
+          tabBarLabelStyle: {
+            fontFamily: "inter",
+            color: Colors.PRIMARY,
+          },
         }}
       />
     </Tabs>

@@ -1,7 +1,6 @@
 import { Platform, View } from "react-native";
 import Header from "../../components/home/header";
-import NoJournals from "../../components/home/NoJournals";
-import Button from "../../components/shared/Button";
+import NoJournals from "../../components/home/nojournals";
 import Colors from "./../../assets/constant/Colors";
 
 export default function Home() {
@@ -16,11 +15,6 @@ export default function Home() {
     >
       <Header />
       <NoJournals />
-      <Button text={"+ Add a Journal Entry"} />
-      <Button
-        text={"My Journals"}
-        type="outline"
-      />
     </View>
   );
 }

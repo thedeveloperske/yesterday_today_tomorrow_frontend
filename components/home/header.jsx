@@ -1,10 +1,15 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useRouter } from "expo-router";
 import { useContext } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import Colors from "../../assets/constant/Colors";
 import { UserDetailContext } from "./../../context/UserDetailContext";
 
 export default function Header() {
+  const router = useRouter();
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
+
   return (
     <View
       style={{
@@ -15,31 +20,52 @@ export default function Header() {
         alignItems: "center",
       }}
     >
-      <View>
-        <Text
-          style={{
-            fontFamily: "inter-bold",
-            fontSize: 25,
-          }}
-        >
-          Hello, {userDetail?.name}
-        </Text>
-        <Text
-          style={{
-            fontFamily: "inter",
-            fontSize: 17,
-          }}
-        >
-          Let's Get Started
-        </Text>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <TouchableOpacity>
+          <Ionicons
+            name="menu-outline"
+            size={32}
+            color="black"
+          />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity>
-        <Ionicons
-          name="settings-outline"
-          size={32}
-          color="black"
-        />
-      </TouchableOpacity>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <TouchableOpacity onPress={() => router.push("/pro")}>
+          <MaterialCommunityIcons
+            name="crown"
+            size={32}
+            color={Colors.PRIMARY}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/search")}>
+          <Ionicons
+            name="search-outline"
+            size={32}
+            color="black"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons
+            name="filter-outline"
+            size={24}
+            color="black"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
