@@ -1,5 +1,9 @@
 import { useRouter } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useContext, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   StyleSheet,
@@ -9,9 +13,37 @@ import {
   View,
 } from "react-native";
 import Colors from "../../assets/constant/Colors";
+import { auth, db } from "../../config/FirebaseConfig";
+import { UserDetailContext } from "../../context/UserDetailContext";
 
 export default function Signin() {
   const router = useRouter();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const [loading, setLoading] = useState(false);
+  const handleSignIn = () => {
+    setLoading(true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (resp) => {
+        const user = resp.user;
+        console.log(user);
+        await getUserDetail();
+        setLoading(false);
+        router.replace("/(tabs)/home");
+      })
+      .catch((e) => {
+        console.log(e.message);
+        setLoading(false);
+        // toast
+      });
+  };
+
+  const getUserDetail = async () => {
+    const result = await getDoc(doc(db, "users", email));
+    console.log(result.data);
+    setUserDetail(result, data());
+  };
   return (
     <View
       style={{
@@ -36,16 +68,20 @@ export default function Signin() {
         Welcome Back
       </Text>
       <TextInput
+        onChangeText={(value) => setEmail(value)}
         placeholder="Email Address"
         style={styles.textInput}
       />
       <TextInput
+        onChangeText={(value) => setPassword(value)}
         placeholder="Password"
         secureTextEntry={true}
         style={styles.textInput}
       />
 
       <TouchableOpacity
+        onPress={handleSignIn}
+        disabled={loading}
         style={{
           padding: 15,
           backgroundColor: Colors.PRIMARY,
@@ -54,16 +90,23 @@ export default function Signin() {
           borderRadius: 10,
         }}
       >
-        <Text
-          style={{
-            fontFamily: "inter",
-            fontSize: 20,
-            color: Colors.WHITE,
-            textAlign: "center",
-          }}
-        >
-          Sign In
-        </Text>
+        {!loading ? (
+          <Text
+            style={{
+              fontFamily: "inter",
+              fontSize: 20,
+              color: Colors.WHITE,
+              textAlign: "center",
+            }}
+          >
+            Sign In
+          </Text>
+        ) : (
+          <ActivityIndicator
+            size={"large"}
+            color={Colors.WHITE}
+          />
+        )}
       </TouchableOpacity>
       <View
         style={{
