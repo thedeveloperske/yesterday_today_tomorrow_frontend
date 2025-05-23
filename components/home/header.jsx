@@ -86,6 +86,27 @@ export default function Header() {
             style={styles.drawerItem}
             onPress={() => {
               setDrawerVisible(false);
+              router.push("/pro");
+            }}
+          >
+            <MaterialCommunityIcons
+              name="crown"
+              size={32}
+              color={darkMode ? "#fff" : Colors.PRIMARY}
+            />
+            <Text
+              style={[
+                styles.drawerText,
+                { color: darkMode ? "#fff" : Colors.PRIMARY },
+              ]}
+            >
+              Upgrade
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              setDrawerVisible(false);
               router.push("/(tabs)/profile");
             }}
           >
