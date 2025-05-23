@@ -1,6 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
 import {
   Image,
@@ -12,128 +11,131 @@ import {
   View,
 } from "react-native";
 import Colors from "../../assets/constant/Colors";
-import { auth, db } from "../../config/FirebaseConfig";
+import { registerUser } from "../../config/api";
 import { UserDetailContext } from "../../context/UserDetailContext";
+import { ThemeContext } from "../_layout";
 
 export default function SignUp() {
   const router = useRouter();
-  const [fullName, setFullName] = useState();
+  const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { darkMode } = useContext(ThemeContext);
 
-  const handleSignup = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(async (resp) => {
-        const user = resp.user;
-        console.log(user);
-        await saveUser(user);
-        // save user to db
-      })
-      .catch((e) => {
-        console.log(e.message);
-      });
-  };
-
-  const saveUser = async (user) => {
-    const data = {
-      name: fullName,
-      email: email,
-      member: false,
-      uid: user.uid,
-    };
-    await setDoc(doc(db, "users", email), data);
-
-    setUserDetail(data);
-
-    // Navigate to new page
+  const handleSignup = async () => {
+    try {
+      const payload = { name, email, hashed_password: password };
+      console.log("Register payload:", payload);
+      const resp = await registerUser(payload);
+      // Store JWT in async storage after registration
+      if (resp.access_token) {
+        await AsyncStorage.setItem("jwt", resp.access_token);
+      }
+      setUserDetail(resp.user || { name, email, member: false });
+      // Optionally store JWT: resp.access_token
+      // Navigate to home or next page
+      router.replace("/(tabs)/home");
+    } catch (e) {
+      console.log(e.message);
+    }
   };
 
   return (
     <View
-      style={{
-        display: "flex",
-        alignItems: "center",
-        paddingTop: 100,
-        flex: 1,
-        padding: 25,
-        backgroundColor: Colors.WHITE,
-      }}
+      style={[
+        styles.container,
+        { backgroundColor: darkMode ? "#222" : Colors.WHITE },
+      ]}
     >
       <Image
         source={require("./../../assets/images/signup.png")}
-        style={{ height: 180, width: 180 }}
+        style={styles.image}
+        resizeMode="contain"
       />
       <Text
-        style={{
-          fontSize: 30,
-          fontFamily: "inter-bold",
-        }}
+        style={[styles.title, { color: darkMode ? "#fff" : Colors.PRIMARY }]}
       >
         Create New Account
       </Text>
       <TextInput
-        onChangeText={(value) => setFullName(value)}
+        onChangeText={setName}
         placeholder="Full Name"
-        onChange={(value) => setFullName(value)}
-        style={styles.textInput}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: darkMode ? "#333" : Colors.BG_GRAY || "#f2f2f2",
+            color: darkMode ? "#fff" : "#000",
+            borderColor: darkMode ? "#555" : Colors.PRIMARY,
+          },
+        ]}
+        autoCapitalize="words"
+        textContentType="name"
+        placeholderTextColor={darkMode ? "#aaa" : Colors.GRAY}
       />
       <TextInput
-        onChangeText={(value) => setEmail(value)}
+        onChangeText={setEmail}
         placeholder="Email Address"
-        onChange={(value) => setEmail(value)}
-        style={styles.textInput}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: darkMode ? "#333" : Colors.BG_GRAY || "#f2f2f2",
+            color: darkMode ? "#fff" : "#000",
+            borderColor: darkMode ? "#555" : Colors.PRIMARY,
+          },
+        ]}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        textContentType="emailAddress"
+        placeholderTextColor={darkMode ? "#aaa" : Colors.GRAY}
       />
       <TextInput
-        onChangeText={(value) => setPassword(value)}
+        onChangeText={setPassword}
         placeholder="Password"
-        onChange={(value) => setPassword(value)}
         secureTextEntry={true}
-        style={styles.textInput}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: darkMode ? "#333" : Colors.BG_GRAY || "#f2f2f2",
+            color: darkMode ? "#fff" : "#000",
+            borderColor: darkMode ? "#555" : Colors.PRIMARY,
+          },
+        ]}
+        textContentType="password"
+        placeholderTextColor={darkMode ? "#aaa" : Colors.GRAY}
       />
-
       <TouchableOpacity
         onPress={handleSignup}
-        style={{
-          padding: 15,
-          backgroundColor: Colors.PRIMARY,
-          width: "100%",
-          marginTop: 25,
-          borderRadius: 10,
-        }}
+        style={[
+          styles.button,
+          { backgroundColor: darkMode ? "#444" : Colors.PRIMARY },
+        ]}
+        activeOpacity={0.8}
       >
         <Text
-          style={{
-            fontFamily: "inter",
-            fontSize: 20,
-            color: Colors.WHITE,
-            textAlign: "center",
-          }}
+          style={[
+            styles.buttonText,
+            { color: darkMode ? Colors.PRIMARY : Colors.WHITE },
+          ]}
         >
           Create Account
         </Text>
       </TouchableOpacity>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 5,
-          marginTop: 20,
-        }}
-      >
+      <View style={styles.bottomRow}>
         <Text
-          style={{
-            fontFamily: "inter",
-          }}
+          style={[
+            styles.bottomText,
+            { color: darkMode ? "#aaa" : Colors.GRAY },
+          ]}
         >
           Already have an account?
         </Text>
         <Pressable onPress={() => router.push("/auth/signin")}>
           <Text
-            style={{
-              color: Colors.PRIMARY,
-              fontFamily: "inter-bold",
-            }}
+            style={[
+              styles.linkText,
+              { color: darkMode ? Colors.PRIMARY : Colors.PRIMARY },
+            ]}
           >
             Sign In Here
           </Text>
@@ -144,13 +146,66 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingTop: 24, // reduced for better mobile spacing
+  },
+  image: {
+    height: 120,
+    width: 120,
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: "inter-bold",
+    marginBottom: 24,
+    textAlign: "center",
+  },
   textInput: {
+    backgroundColor: "#333",
     borderWidth: 1,
-    borderColor: Colors.PRIMARY,
+    borderColor: "#555",
+    borderRadius: 10,
     width: "100%",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: "inter",
+    marginBottom: 16,
+    color: "#fff",
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.PRIMARY,
     padding: 15,
-    fontSize: 18,
+    width: "100%",
+    borderRadius: 10,
     marginTop: 20,
-    borderRadius: 8,
+    justifyContent: "center",
+    gap: 10,
+  },
+  buttonText: {
+    color: Colors.WHITE,
+    fontFamily: "inter",
+    fontSize: 18,
+    textAlign: "center",
+  },
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  bottomText: {
+    fontFamily: "inter",
+    fontSize: 15,
+  },
+  linkText: {
+    fontFamily: "inter-bold",
+    marginLeft: 6,
+    fontSize: 15,
   },
 });

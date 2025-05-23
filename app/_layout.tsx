@@ -1,7 +1,12 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
-import { useState } from "react";
+import { createContext, useState } from "react";
 import { UserDetailContext } from "./../context/UserDetailContext";
+
+export const ThemeContext = createContext({
+  darkMode: false,
+  setDarkMode: (_: boolean) => {},
+});
 
 export default function RootLayout() {
   useFonts({
@@ -10,10 +15,13 @@ export default function RootLayout() {
   });
 
   const [userDetail, setUserDetail] = useState();
+  const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
-      <Stack screenOptions={{ headerShown: false }}></Stack>
-    </UserDetailContext.Provider>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
+      <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </UserDetailContext.Provider>
+    </ThemeContext.Provider>
   );
 }

@@ -1,15 +1,18 @@
 import { useRouter } from "expo-router";
+import { useContext } from "react";
 import { Image, Text, View } from "react-native";
+import { ThemeContext } from "../../app/_layout";
 import Button from "../shared/Button";
 
 export default function NoJournals() {
   const router = useRouter();
+  const { darkMode } = useContext(ThemeContext);
   return (
     <View
       style={{
-        marginTop: 40,
         display: "flex",
         alignItems: "center",
+        backgroundColor: darkMode ? "#222" : "transparent",
       }}
     >
       <Image
@@ -22,6 +25,7 @@ export default function NoJournals() {
           fontFamily: "inter-bold",
           fontSize: 25,
           textAlign: "center",
+          color: darkMode ? "#fff" : "#000",
         }}
       >
         Start Journaling...
@@ -29,10 +33,12 @@ export default function NoJournals() {
       <Button
         text={"+ Add a Journal Entry"}
         onPress={() => router.push("/journal")}
+        style={{ width: "100%" }}
       />
       <Button
         text={"My Journals"}
         type="outline"
+        style={{ width: "100%", marginTop: 10 }}
       />
     </View>
   );

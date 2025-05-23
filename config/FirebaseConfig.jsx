@@ -21,4 +21,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// FirebaseConfig is no longer needed for auth, can be deleted if not used elsewhere
+
 export { app, auth, db };

@@ -1,11 +1,22 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
+import { useContext } from "react";
 import Colors from "../../assets/constant/Colors";
+import { ThemeContext } from "../_layout";
 
 export default function TabLayout() {
+  const { darkMode } = useContext(ThemeContext);
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: darkMode ? "#222" : "#fff",
+          borderTopColor: darkMode ? "#333" : "#eee",
+        },
+        tabBarActiveTintColor: darkMode ? Colors.PRIMARY : Colors.PRIMARY,
+        tabBarInactiveTintColor: darkMode ? "#fff" : Colors.PRIMARY,
+      }}
       style={{
         position: "absolute",
         bottom: 25,
@@ -16,68 +27,68 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="list"
-              size={size}
-              color={Colors.PRIMARY}
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name="home"
+              size={28}
+              color={color}
             />
           ),
           tabBarLabel: "Home",
           tabBarLabelStyle: {
             fontFamily: "inter",
-            color: Colors.PRIMARY,
+            color: darkMode ? "#fff" : Colors.PRIMARY,
           },
         }}
       />
       <Tabs.Screen
         name="analytics"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="analytics-outline"
-              size={size}
-              color={Colors.PRIMARY}
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name="chart-bar"
+              size={28}
+              color={color}
             />
           ),
           tabBarLabel: "Analytics",
           tabBarLabelStyle: {
             fontFamily: "inter",
-            color: Colors.PRIMARY,
+            color: darkMode ? "#fff" : Colors.PRIMARY,
           },
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="person-circle-outline"
-              size={size}
-              color={Colors.PRIMARY}
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name="account-circle"
+              size={28}
+              color={color}
             />
           ),
           tabBarLabel: "Profile",
           tabBarLabelStyle: {
             fontFamily: "inter",
-            color: Colors.PRIMARY,
+            color: darkMode ? "#fff" : Colors.PRIMARY,
           },
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="settings-outline"
-              size={size}
-              color={Colors.PRIMARY}
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name="cog"
+              size={28}
+              color={color}
             />
           ),
           tabBarLabel: "Settings",
           tabBarLabelStyle: {
             fontFamily: "inter",
-            color: Colors.PRIMARY,
+            color: darkMode ? "#fff" : Colors.PRIMARY,
           },
         }}
       />

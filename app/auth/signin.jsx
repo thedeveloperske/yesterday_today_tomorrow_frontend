@@ -1,6 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import { useContext, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,8 +12,9 @@ import {
   View,
 } from "react-native";
 import Colors from "../../assets/constant/Colors";
-import { auth, db } from "../../config/FirebaseConfig";
+import { loginUser } from "../../config/api";
 import { UserDetailContext } from "../../context/UserDetailContext";
+import { ThemeContext } from "../_layout";
 
 export default function Signin() {
   const router = useRouter();
@@ -22,113 +22,115 @@ export default function Signin() {
   const [password, setPassword] = useState();
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const [loading, setLoading] = useState(false);
-  const handleSignIn = () => {
+  const { darkMode } = useContext(ThemeContext);
+
+  const handleSignIn = async () => {
     setLoading(true);
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (resp) => {
-        const user = resp.user;
-        console.log(user);
-        await getUserDetail();
-        setLoading(false);
-        router.replace("/(tabs)/home");
-      })
-      .catch((e) => {
-        console.log(e.message);
-        setLoading(false);
-        // toast
-      });
+    try {
+      const payload = { email, password };
+      console.log("Login payload:", payload);
+      const resp = await loginUser(payload);
+      if (resp.access_token) {
+        await AsyncStorage.setItem("jwt", resp.access_token);
+      }
+      setUserDetail(resp.user || { email });
+      setLoading(false);
+      router.replace("/(tabs)/home");
+    } catch (e) {
+      console.log(e.message);
+      setLoading(false);
+    }
   };
 
-  const getUserDetail = async () => {
-    const result = await getDoc(doc(db, "users", email));
-    console.log(result.data);
-    setUserDetail(result, data());
-  };
   return (
     <View
-      style={{
-        display: "flex",
-        alignItems: "center",
-        paddingTop: 100,
-        flex: 1,
-        padding: 25,
-        backgroundColor: Colors.WHITE,
-      }}
+      style={[
+        styles.container,
+        { backgroundColor: darkMode ? "#222" : Colors.WHITE },
+      ]}
     >
       <Image
         source={require("./../../assets/images/signin.png")}
-        style={{ height: 180, width: 180 }}
+        style={styles.image}
+        resizeMode="contain"
       />
       <Text
-        style={{
-          fontSize: 30,
-          fontFamily: "inter-bold",
-        }}
+        style={[styles.title, { color: darkMode ? "#fff" : Colors.PRIMARY }]}
       >
         Welcome Back
       </Text>
       <TextInput
-        onChangeText={(value) => setEmail(value)}
+        onChangeText={setEmail}
         placeholder="Email Address"
-        style={styles.textInput}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: darkMode ? "#333" : Colors.BG_GRAY || "#f2f2f2",
+            color: darkMode ? "#fff" : "#000",
+            borderColor: darkMode ? "#555" : Colors.PRIMARY,
+          },
+        ]}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        textContentType="emailAddress"
+        placeholderTextColor={darkMode ? "#aaa" : Colors.GRAY}
       />
       <TextInput
-        onChangeText={(value) => setPassword(value)}
+        onChangeText={setPassword}
         placeholder="Password"
         secureTextEntry={true}
-        style={styles.textInput}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: darkMode ? "#333" : Colors.BG_GRAY || "#f2f2f2",
+            color: darkMode ? "#fff" : "#000",
+            borderColor: darkMode ? "#555" : Colors.PRIMARY,
+          },
+        ]}
+        textContentType="password"
+        placeholderTextColor={darkMode ? "#aaa" : Colors.GRAY}
       />
-
       <TouchableOpacity
         onPress={handleSignIn}
         disabled={loading}
-        style={{
-          padding: 15,
-          backgroundColor: Colors.PRIMARY,
-          width: "100%",
-          marginTop: 25,
-          borderRadius: 10,
-        }}
+        style={[
+          styles.button,
+          loading && styles.buttonDisabled,
+          { backgroundColor: darkMode ? "#444" : Colors.PRIMARY },
+        ]}
+        activeOpacity={0.8}
       >
         {!loading ? (
           <Text
-            style={{
-              fontFamily: "inter",
-              fontSize: 20,
-              color: Colors.WHITE,
-              textAlign: "center",
-            }}
+            style={[
+              styles.buttonText,
+              { color: darkMode ? Colors.PRIMARY : Colors.WHITE },
+            ]}
           >
             Sign In
           </Text>
         ) : (
           <ActivityIndicator
             size={"large"}
-            color={Colors.WHITE}
+            color={darkMode ? Colors.PRIMARY : Colors.WHITE}
           />
         )}
       </TouchableOpacity>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 5,
-          marginTop: 20,
-        }}
-      >
+      <View style={styles.bottomRow}>
         <Text
-          style={{
-            fontFamily: "inter",
-          }}
+          style={[
+            styles.bottomText,
+            { color: darkMode ? "#aaa" : Colors.GRAY },
+          ]}
         >
           Don't have an account?
         </Text>
         <Pressable onPress={() => router.push("/auth/signup")}>
           <Text
-            style={{
-              color: Colors.PRIMARY,
-              fontFamily: "inter-bold",
-            }}
+            style={[
+              styles.linkText,
+              { color: darkMode ? Colors.PRIMARY : Colors.PRIMARY },
+            ]}
           >
             Sign Up Here
           </Text>
@@ -137,13 +139,71 @@ export default function Signin() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingTop: 24, // reduced for better mobile spacing
+  },
+  image: {
+    height: 120,
+    width: 120,
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: "inter-bold",
+    marginBottom: 24,
+    textAlign: "center",
+  },
   textInput: {
+    backgroundColor: "#333",
     borderWidth: 1,
+    borderColor: "#555",
+    borderRadius: 10,
     width: "100%",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: "inter",
+    marginBottom: 16,
+    color: "#fff",
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#444",
     padding: 15,
-    fontSize: 18,
+    width: "100%",
+    borderRadius: 10,
     marginTop: 20,
-    borderRadius: 8,
+    justifyContent: "center",
+    gap: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: Colors.PRIMARY,
+    fontFamily: "inter",
+    fontSize: 18,
+    textAlign: "center",
+  },
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  bottomText: {
+    fontFamily: "inter",
+    fontSize: 15,
+  },
+  linkText: {
+    fontFamily: "inter-bold",
+    marginLeft: 6,
+    fontSize: 15,
   },
 });
