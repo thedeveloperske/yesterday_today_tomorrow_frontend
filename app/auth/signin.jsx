@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AwesomeAlert from "react-native-awesome-alerts";
 import Colors from "../../assets/constant/Colors";
 import { loginUser } from "../../config/api";
 import { useUser } from "../../context/UserDetailProvider";
@@ -22,6 +23,7 @@ export default function Signin() {
   const { user, setUser, login, logout, loading } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const { darkMode } = useContext(ThemeContext);
+  const [showError, setShowError] = useState(false);
 
   const handleSignIn = async () => {
     setIsLoading(true);
@@ -35,6 +37,7 @@ export default function Signin() {
       router.replace("/(tabs)/home");
     } catch (e) {
       setIsLoading(false);
+      setShowError(true);
     }
   };
 
@@ -132,6 +135,53 @@ export default function Signin() {
           </Text>
         </Pressable>
       </View>
+      <AwesomeAlert
+        show={showError}
+        showProgress={false}
+        title="Login Failed"
+        message="Incorrect email or password. Please try again."
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={true}
+        showConfirmButton={true}
+        confirmText="Close"
+        confirmButtonColor={darkMode ? "#F9D923" : "#385A64"}
+        onConfirmPressed={() => setShowError(false)}
+        contentContainerStyle={{
+          borderRadius: 22,
+          backgroundColor: darkMode ? "#232B2B" : "#fff",
+          paddingHorizontal: 28,
+          paddingVertical: 24,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.18,
+          shadowRadius: 8,
+          elevation: 10,
+        }}
+        titleStyle={{
+          color: darkMode ? "#F9D923" : "#D7263D",
+          fontSize: 26,
+          fontFamily: "inter-bold",
+          textAlign: "center",
+          marginBottom: 6,
+        }}
+        messageStyle={{
+          color: darkMode ? "#fff" : "#385A64",
+          fontSize: 18,
+          fontFamily: "inter",
+          textAlign: "center",
+        }}
+        confirmButtonStyle={{
+          borderRadius: 16,
+          paddingHorizontal: 32,
+          paddingVertical: 12,
+          backgroundColor: darkMode ? "#F9D923" : "#385A64",
+        }}
+        confirmButtonTextStyle={{
+          fontFamily: "inter-bold",
+          fontSize: 18,
+          color: darkMode ? "#232B2B" : "#fff",
+        }}
+      />
     </View>
   );
 }

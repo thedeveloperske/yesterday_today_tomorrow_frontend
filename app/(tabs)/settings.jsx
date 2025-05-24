@@ -2,8 +2,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import AwesomeAlert from "react-native-awesome-alerts";
 import Colors from "../../assets/constant/Colors";
 import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
@@ -12,6 +13,7 @@ export default function Settings() {
   const router = useRouter();
   const { setUser, logout } = useUser();
   const { darkMode, setDarkMode } = useContext(ThemeContext);
+  const [showAbout, setShowAbout] = useState(false);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("jwt");
@@ -68,11 +70,7 @@ export default function Settings() {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.option}
-        onPress={() =>
-          alert(
-            "Developed by Hanson Williams. Contact: williamshanson.hanson@gmail.com"
-          )
-        }
+        onPress={() => setShowAbout(true)}
       >
         <Ionicons
           name="information-circle-outline"
@@ -121,6 +119,55 @@ export default function Settings() {
         />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
+      <AwesomeAlert
+        show={showAbout}
+        showProgress={false}
+        title="About the Developer"
+        message={
+          "This app was crafted with ❤️ by [Your Name].\n\nContact: your.email@example.com\nGitHub: github.com/yourusername\n\nThank you for using Yesterday, Today, Tomorrow!"
+        }
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={true}
+        showConfirmButton={true}
+        confirmText="Close"
+        confirmButtonColor={darkMode ? "#F9D923" : "#385A64"}
+        onConfirmPressed={() => setShowAbout(false)}
+        contentContainerStyle={{
+          borderRadius: 22,
+          backgroundColor: darkMode ? "#232B2B" : "#fff",
+          paddingHorizontal: 28,
+          paddingVertical: 24,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.18,
+          shadowRadius: 8,
+          elevation: 10,
+        }}
+        titleStyle={{
+          color: darkMode ? "#F9D923" : "#385A64",
+          fontFamily: "inter-bold",
+          fontSize: 26,
+          textAlign: "center",
+          marginBottom: 6,
+        }}
+        messageStyle={{
+          color: darkMode ? "#fff" : "#385A64",
+          fontFamily: "inter",
+          fontSize: 18,
+          textAlign: "center",
+        }}
+        confirmButtonStyle={{
+          borderRadius: 16,
+          paddingHorizontal: 32,
+          paddingVertical: 12,
+          backgroundColor: darkMode ? "#F9D923" : "#385A64",
+        }}
+        confirmButtonTextStyle={{
+          fontFamily: "inter-bold",
+          fontSize: 18,
+          color: darkMode ? "#232B2B" : "#fff",
+        }}
+      />
     </View>
   );
 }

@@ -37,6 +37,7 @@ export default function NoJournals() {
       />
       <Button
         text={"My Journals"}
+        onPress={() => router.push("/search")}
         type="outline"
         style={{ width: "100%", marginTop: 10 }}
       />

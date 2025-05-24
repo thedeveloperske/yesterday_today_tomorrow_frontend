@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AwesomeAlert from "react-native-awesome-alerts";
 import { ThemeContext } from "../_layout";
 
 const EMOJIS = [
@@ -59,8 +60,28 @@ export default function JournalEntry() {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const [validationMsg, setValidationMsg] = useState("");
+
+  const validateAndAlert = (field, label) => {
+    setValidationMsg(`Please enter: ${label}`);
+    setShowValidation(true);
+  };
 
   const handleSave = async () => {
+    if (!title.trim()) {
+      validateAndAlert("title", "Title");
+      return;
+    }
+    if (!mood.trim()) {
+      validateAndAlert("mood", "Mood");
+      return;
+    }
+    if (!content.trim()) {
+      validateAndAlert("content", "Journal Content");
+      return;
+    }
     const entry = {
       title: title,
       category: category,
@@ -71,11 +92,22 @@ export default function JournalEntry() {
     console.log("[JournalEntry] Entry to be posted:", entry);
     try {
       await axios.post("http://localhost:8000/items", entry);
-      Alert.alert("Saved!", "Your journal entry has been saved.");
-      router.back(); // Optionally go back to the journal list
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        // Go to home after success
+        router.replace("/(tabs)/home");
+      }, 1500);
     } catch (e) {
       Alert.alert("Error", "Failed to save entry.");
     }
+  };
+
+  const handleBack = () => {
+    // If you want to always go to the home screen, use:
+    router.replace("/(tabs)/home");
+    // If you want to go to the main journal list, use:
+    // router.replace('/journal');
   };
 
   return (
@@ -87,7 +119,7 @@ export default function JournalEntry() {
     >
       <View style={styles.topRow}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={handleBack}
           style={[
             styles.iconBtn,
             { backgroundColor: darkMode ? "#333" : "#f2f2f2" },
@@ -281,6 +313,107 @@ export default function JournalEntry() {
         multiline
         numberOfLines={6}
         textAlignVertical="top"
+      />
+      <AwesomeAlert
+        show={showSuccess}
+        showProgress={false}
+        title="Success!"
+        message="Your journal entry has been saved."
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={true}
+        showConfirmButton={false}
+        contentContainerStyle={{
+          borderRadius: 28,
+          backgroundColor: darkMode ? "#232B2B" : "#fff",
+          paddingHorizontal: 36,
+          paddingVertical: 32,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.22,
+          shadowRadius: 16,
+          elevation: 16,
+        }}
+        titleStyle={{
+          color: darkMode ? "#F9D923" : "#385A64",
+          fontSize: 28,
+          fontFamily: "inter-bold",
+          textAlign: "center",
+          marginBottom: 10,
+          letterSpacing: 0.5,
+        }}
+        messageStyle={{
+          color: darkMode ? "#fff" : "#385A64",
+          fontSize: 20,
+          fontFamily: "inter",
+          textAlign: "center",
+          marginTop: 2,
+          marginBottom: 2,
+        }}
+        confirmButtonStyle={{
+          borderRadius: 20,
+          paddingHorizontal: 36,
+          paddingVertical: 14,
+          backgroundColor: darkMode ? "#F9D923" : "#385A64",
+          marginTop: 12,
+        }}
+        confirmButtonTextStyle={{
+          fontFamily: "inter-bold",
+          fontSize: 20,
+          color: darkMode ? "#232B2B" : "#fff",
+          letterSpacing: 0.5,
+        }}
+      />
+      <AwesomeAlert
+        show={showValidation}
+        showProgress={false}
+        title="Missing Information"
+        message={validationMsg}
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={true}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor={darkMode ? "#F9D923" : "#385A64"}
+        onConfirmPressed={() => setShowValidation(false)}
+        contentContainerStyle={{
+          borderRadius: 28,
+          backgroundColor: darkMode ? "#232B2B" : "#fff",
+          paddingHorizontal: 36,
+          paddingVertical: 32,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.22,
+          shadowRadius: 16,
+          elevation: 16,
+        }}
+        titleStyle={{
+          color: darkMode ? "#F9D923" : "#D7263D",
+          fontSize: 26,
+          fontFamily: "inter-bold",
+          textAlign: "center",
+          marginBottom: 10,
+          letterSpacing: 0.5,
+        }}
+        messageStyle={{
+          color: darkMode ? "#fff" : "#385A64",
+          fontSize: 18,
+          fontFamily: "inter",
+          textAlign: "center",
+          marginTop: 2,
+          marginBottom: 2,
+        }}
+        confirmButtonStyle={{
+          borderRadius: 20,
+          paddingHorizontal: 36,
+          paddingVertical: 14,
+          backgroundColor: darkMode ? "#F9D923" : "#385A64",
+          marginTop: 12,
+        }}
+        confirmButtonTextStyle={{
+          fontFamily: "inter-bold",
+          fontSize: 18,
+          color: darkMode ? "#232B2B" : "#fff",
+          letterSpacing: 0.5,
+        }}
       />
     </View>
   );
