@@ -1,7 +1,7 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -53,6 +53,7 @@ const CATEGORIES = ["Personal", "Business", "Travel"];
 export default function JournalEntry() {
   const { darkMode } = useContext(ThemeContext);
   const router = useRouter();
+  const { id } = require("expo-router").useLocalSearchParams();
   const [title, setTitle] = useState("");
   const [mood, setMood] = useState("");
   const [content, setContent] = useState("");
@@ -63,6 +64,24 @@ export default function JournalEntry() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [validationMsg, setValidationMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch entry details if editing
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    axios
+      .get(`http://localhost:8000/items/${id}`)
+      .then((resp) => {
+        setTitle(resp.data.title || "");
+        setMood(resp.data.mood || "");
+        setContent(resp.data.content || "");
+        setCategory(resp.data.category || CATEGORIES[0]);
+      })
+      .catch(() => setError("Failed to load entry details."))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   const validateAndAlert = (field, label) => {
     setValidationMsg(`Please enter: ${label}`);
@@ -89,17 +108,22 @@ export default function JournalEntry() {
       content: content,
       owner_id: 1,
     };
-    console.log("[JournalEntry] Entry to be posted:", entry);
     try {
-      await axios.post("http://localhost:8000/items", entry);
+      if (id) {
+        await axios.put(`http://localhost:8000/items/${id}`, entry);
+      } else {
+        await axios.post("http://localhost:8000/items", entry);
+      }
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
-        // Go to home after success
         router.replace("/(tabs)/home");
       }, 1500);
     } catch (e) {
-      Alert.alert("Error", "Failed to save entry.");
+      Alert.alert(
+        "Error",
+        id ? "Failed to update entry." : "Failed to save entry."
+      );
     }
   };
 
@@ -109,6 +133,41 @@ export default function JournalEntry() {
     // If you want to go to the main journal list, use:
     // router.replace('/journal');
   };
+
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: darkMode ? "#222" : "#fff",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <Text style={{ color: darkMode ? "#fff" : "#385A64", fontSize: 18 }}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
+  if (error) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: darkMode ? "#222" : "#fff",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <Text style={{ color: "red", fontSize: 18 }}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View
