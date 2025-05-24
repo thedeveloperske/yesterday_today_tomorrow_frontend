@@ -1,12 +1,11 @@
-import { UserDetailContext } from "@/context/UserDetailContext";
 import { useRouter } from "expo-router";
-import { useContext } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../assets/constant/Colors";
+import { useUser } from "../context/UserDetailProvider";
 
 export default function Index() {
   const router = useRouter();
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { user, setUser, login, logout, loading } = useUser();
 
   return (
     <View

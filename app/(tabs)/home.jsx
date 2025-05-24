@@ -2,13 +2,13 @@ import { useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Header from "../../components/home/header";
 import NoJournals from "../../components/home/nojournals";
-import { UserDetailContext } from "../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
 
 export default function Home() {
-  const { userDetail } = useContext(UserDetailContext);
+  const { user } = useUser();
   const { darkMode } = useContext(ThemeContext);
-  const name = userDetail?.name || userDetail?.email?.split("@")[0] || "";
+  const name = user?.name || user?.email?.split("@")[0] || "";
   return (
     <View
       style={[

@@ -12,11 +12,11 @@ import {
 } from "react-native";
 import { ThemeContext } from "../../app/_layout";
 import Colors from "../../assets/constant/Colors";
-import { UserDetailContext } from "./../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 
 export default function Header() {
   const router = useRouter();
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { user, setUser, login, logout, loading } = useUser();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { darkMode } = useContext(ThemeContext);
 

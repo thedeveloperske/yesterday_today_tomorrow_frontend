@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useState } from "react";
 import {
@@ -12,7 +11,7 @@ import {
 } from "react-native";
 import Colors from "../../assets/constant/Colors";
 import { registerUser } from "../../config/api";
-import { UserDetailContext } from "../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
 
 export default function SignUp() {
@@ -20,21 +19,16 @@ export default function SignUp() {
   const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { user, setUser, login, logout, loading } = useUser();
   const { darkMode } = useContext(ThemeContext);
 
   const handleSignup = async () => {
     try {
       const payload = { name, email, hashed_password: password };
-      console.log("Register payload:", payload);
       const resp = await registerUser(payload);
-      // Store JWT in async storage after registration
-      if (resp.access_token) {
-        await AsyncStorage.setItem("jwt", resp.access_token);
+      if (resp.access_token && resp.user) {
+        await login(resp.user, resp.access_token); // persist user and token
       }
-      setUserDetail(resp.user || { name, email, member: false });
-      // Optionally store JWT: resp.access_token
-      // Navigate to home or next page
       router.replace("/(tabs)/home");
     } catch (e) {
       console.log(e.message);

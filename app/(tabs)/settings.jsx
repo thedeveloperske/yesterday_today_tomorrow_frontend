@@ -5,17 +5,17 @@ import { useRouter } from "expo-router";
 import { useContext } from "react";
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../../assets/constant/Colors";
-import { UserDetailContext } from "../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
 
 export default function Settings() {
   const router = useRouter();
-  const { setUserDetail } = useContext(UserDetailContext);
+  const { setUser, logout } = useUser();
   const { darkMode, setDarkMode } = useContext(ThemeContext);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("jwt");
-    setUserDetail(undefined);
+    setUser(undefined);
     router.replace("/auth/signin");
   };
 

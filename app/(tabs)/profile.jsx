@@ -1,15 +1,11 @@
 import { useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { UserDetailContext } from "../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
 
 export default function Profile() {
   const { darkMode } = useContext(ThemeContext);
-  const { userDetail } = useContext(UserDetailContext);
-  const name = userDetail?.name || userDetail?.email?.split("@")[0] || "";
-  const email = userDetail?.email || "";
-  // Placeholder for journal count, to be implemented later
-  // const journalCount = ...
+  const { user } = useUser();
 
   return (
     <View
@@ -26,16 +22,14 @@ export default function Profile() {
           Name
         </Text>
         <Text style={[styles.value, { color: darkMode ? "#fff" : "#385A64" }]}>
-          {name}
+          {user?.name || "-"}
         </Text>
         <Text style={[styles.label, { color: darkMode ? "#aaa" : "#858585" }]}>
           Email
         </Text>
         <Text style={[styles.value, { color: darkMode ? "#fff" : "#385A64" }]}>
-          {email}
+          {user?.email || "-"}
         </Text>
-        {/* <Text style={[styles.label, { color: darkMode ? "#aaa" : "#858585" }]}>Journal Entries</Text>
-        <Text style={[styles.value, { color: darkMode ? "#fff" : "#385A64" }]}>{journalCount}</Text> */}
       </View>
     </View>
   );

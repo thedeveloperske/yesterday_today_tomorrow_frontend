@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useContext, useState } from "react";
 import {
@@ -13,32 +12,29 @@ import {
 } from "react-native";
 import Colors from "../../assets/constant/Colors";
 import { loginUser } from "../../config/api";
-import { UserDetailContext } from "../../context/UserDetailContext";
+import { useUser } from "../../context/UserDetailProvider";
 import { ThemeContext } from "../_layout";
 
 export default function Signin() {
   const router = useRouter();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
-  const [loading, setLoading] = useState(false);
+  const { user, setUser, login, logout, loading } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
   const { darkMode } = useContext(ThemeContext);
 
   const handleSignIn = async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       const payload = { email, password };
-      console.log("Login payload:", payload);
       const resp = await loginUser(payload);
-      if (resp.access_token) {
-        await AsyncStorage.setItem("jwt", resp.access_token);
+      if (resp.access_token && resp.user) {
+        await login(resp.user, resp.access_token); // persist user and token
       }
-      setUserDetail(resp.user || { email });
-      setLoading(false);
+      setIsLoading(false);
       router.replace("/(tabs)/home");
     } catch (e) {
-      console.log(e.message);
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -92,15 +88,15 @@ export default function Signin() {
       />
       <TouchableOpacity
         onPress={handleSignIn}
-        disabled={loading}
+        disabled={isLoading}
         style={[
           styles.button,
-          loading && styles.buttonDisabled,
+          isLoading && styles.buttonDisabled,
           { backgroundColor: darkMode ? "#444" : Colors.PRIMARY },
         ]}
         activeOpacity={0.8}
       >
-        {!loading ? (
+        {!isLoading ? (
           <Text
             style={[
               styles.buttonText,

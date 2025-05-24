@@ -1,7 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
-import { createContext, useState } from "react";
-import { UserDetailContext } from "./../context/UserDetailContext";
+import { createContext, useEffect, useState } from "react";
+import { UserDetailProvider } from "../context/UserDetailProvider";
 
 export const ThemeContext = createContext({
   darkMode: false,
@@ -14,14 +15,28 @@ export default function RootLayout() {
     "inter-bold": require("./../assets/fonts/Inter-Bold.ttf"),
   });
 
-  const [userDetail, setUserDetail] = useState();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkModeState] = useState(false);
+
+  // Load dark mode preference from AsyncStorage on mount
+  useEffect(() => {
+    const loadTheme = async () => {
+      const stored = await AsyncStorage.getItem("darkMode");
+      if (stored !== null) setDarkModeState(stored === "true");
+    };
+    loadTheme();
+  }, []);
+
+  // Persist dark mode preference
+  const setDarkMode = async (value: boolean) => {
+    setDarkModeState(value);
+    await AsyncStorage.setItem("darkMode", value ? "true" : "false");
+  };
 
   return (
     <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
-      <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
+      <UserDetailProvider>
         <Stack screenOptions={{ headerShown: false }} />
-      </UserDetailContext.Provider>
+      </UserDetailProvider>
     </ThemeContext.Provider>
   );
 }

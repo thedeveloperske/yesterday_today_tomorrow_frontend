@@ -1,10 +1,36 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useContext } from "react";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Journal() {
   const { darkMode } = useContext(require("../_layout").ThemeContext);
   const router = require("expo-router").useRouter();
+
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEntries = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const resp = await axios.get("http://localhost:8000/items");
+        // Only keep name and description fields for each entry
+        const trimmed = (resp.data || []).map((e) => ({
+          name: e.name,
+          description: e.description,
+          id: e.id, // keep id for key/edit/delete
+        }));
+        setEntries(trimmed);
+      } catch (e) {
+        setError("Failed to load entries");
+      }
+      setLoading(false);
+    };
+    fetchEntries();
+  }, []);
 
   return (
     <View
@@ -14,7 +40,7 @@ export default function Journal() {
       ]}
     >
       <TouchableOpacity
-        onPress={() => router.push("/(tabs)")}
+        onPress={() => router.push("/home")}
         style={{
           alignSelf: "flex-start",
           marginBottom: 12,
@@ -39,8 +65,8 @@ export default function Journal() {
       <Text
         style={[styles.description, { color: darkMode ? "#aaa" : "#858585" }]}
       >
-        Exactly let us know what mood you are in today. (You can be happy and at
-        the same time sad and we understand)
+        Remember that your yesterday counts, today is aleady here and tomorrow
+        might be untold
       </Text>
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -48,7 +74,7 @@ export default function Journal() {
             styles.journalBtn,
             { backgroundColor: darkMode ? "#333" : "#f2f2f2" },
           ]}
-          onPress={() => router.push("/journal?day=yesterday")}
+          onPress={() => router.push("/journal/entry?day=yesterday")}
         >
           <MaterialCommunityIcons
             name="calendar-minus"
@@ -69,7 +95,7 @@ export default function Journal() {
             styles.journalBtn,
             { backgroundColor: darkMode ? "#385A64" : "#385A64" },
           ]}
-          onPress={() => router.push("/journal?day=today")}
+          onPress={() => router.push("/journal/entry?day=today")}
         >
           <MaterialCommunityIcons
             name="calendar-today"
@@ -83,7 +109,7 @@ export default function Journal() {
             styles.journalBtn,
             { backgroundColor: darkMode ? "#333" : "#f2f2f2" },
           ]}
-          onPress={() => router.push("/journal?day=tomorrow")}
+          onPress={() => router.push("/journal/entry?day=tomorrow")}
         >
           <MaterialCommunityIcons
             name="calendar-plus"
@@ -100,7 +126,6 @@ export default function Journal() {
           </Text>
         </TouchableOpacity>
       </View>
-      {/* Add journal entry form or UI here */}
     </View>
   );
 }
