@@ -128,10 +128,11 @@ export default function JournalEntry() {
   };
 
   const handleBack = () => {
-    // If you want to always go to the home screen, use:
-    router.replace("/(tabs)/home");
-    // If you want to go to the main journal list, use:
-    // router.replace('/journal');
+    if (id) {
+      router.replace("/search"); // Editing: go back to search
+    } else {
+      router.replace("/(tabs)/home"); // New entry: go to home
+    }
   };
 
   if (loading) {

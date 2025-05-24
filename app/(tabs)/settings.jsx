@@ -124,7 +124,7 @@ export default function Settings() {
         showProgress={false}
         title="About the Developer"
         message={
-          "This app was crafted with ❤️ by [Your Name].\n\nContact: your.email@example.com\nGitHub: github.com/yourusername\n\nThank you for using Yesterday, Today, Tomorrow!"
+          "This app was crafted with ❤️ by Hanson Williams.\n\nContact: thedeveloperske@gmail.com\nGitHub: github.com/thedeveloperske\n\nThank you for using Yesterday, Today, Tomorrow!"
         }
         closeOnTouchOutside={true}
         closeOnHardwareBackPress={true}
